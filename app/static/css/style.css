@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=Poppins:wght@300&display=swap');
+
+.main {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-family: 'Poppins', sans-serif;
+    padding: 20px;
+}
+.value-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 450px;
+    height: 80px;
+    padding: 10px;
+    margin-top: 10px;
+    background: #454545;
+    color: #FFFFFF;
+    border-radius: 8px;
+}
+
+.description {
+    display: flex;
+    flex-direction: column;
+}
+
+.description-ja {
+    font-size: 28px;
+}
+
+.description-en {
+    font-size: 16px;
+}
+
+.value {
+    display: flex;
+}
+
+.value span {
+    font-size: 48px;
+}
+
+.value p {
+    display: flex;
+    margin-left: 4px;
+    font-size: 28px;
+    align-items: end;
+}
+
+.timestamp {
+    display: flex;
+    align-items: center;
+    width: 450px;
+    padding: 8px;
+}
+
+.timestamp .description-ja {
+    font-size: 24px;
+}
+
+.timestamp .description-en {
+    font-size: 16px;
+}
+
+.timestamp span {
+    margin-right: 0;
+    margin-left: auto;
+    font-size: 18px;
+}
+
+.chart-container {
+    width: 600px;
+    height: 300px;
+}

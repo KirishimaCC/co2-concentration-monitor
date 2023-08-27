@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <title>CO2濃度モニタ</title>
+    <link rel="stylesheet" href="../static/css/reset.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+    <div class="main">
+        <div class="value-container">
+            <div class="description">
+                <p class="description-ja">現在のCO2濃度</p>
+                <p class="description-en">Current CO2 concentration</p>
+            </div>
+            <div class="value">        
+                <span id="currentCo2" class="currentCo2">-</span>
+                <p>ppm</p>
+            </div>
+        </div>
+        <div class="value-container">
+            <div class="description">
+                <p class="description-ja">現在の室温</p>
+                <p class="description-en">Current room temperature</p>
+            </div>
+            <div class="value">        
+                <span id="currentTemperature" class="currentTemperature">-</span>
+                <p>℃</p>
+            </div>
+        </div>
+        <div class="timestamp">
+            <div class="description">
+                <p class="description-ja">データ取得時刻</p>
+                <p class="description-en">Data acquisition time</p>
+            </div>
+            <span id="currentTime" class="currentTime">-</span>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart"></canvas>
+        </div>
+        
+    </div>
+    <!--
+        現在のCO2濃度
+        Current CO2 concentration
+        現在の室温
+        Current room temperature
+        データ取得時刻
+        Data acquisition time
+    -->
+    <script>
+        var socket = io.connect("http://192.168.1.20:5000");
+
+        socket.on("update", function(currentData) {
+            document.getElementById("currentCo2").innerHTML = currentData["co2"];
+            document.getElementById("currentTemperature").innerHTML = currentData["temperature"];
+            document.getElementById("currentTime").innerHTML = currentData["time"];
+        });
+
+        /*dbデータ取得*/
+        window.onload = onLoad;
+        function onLoad(){
+            socket.emit("requestLatestData");
+            console.log("send!")
+        };
+
+    // データを保存するための変数を初期化します
+    var latestCo2 = [];
+    var latestTime = [];
+
+    // 初期のチャートを作成する関数
+    function createChart() {
+        var chart = new Chart(document.getElementById("chart"), {
+            type: "line",
+            data: {
+                labels: latestTime, // X軸のラベルとしてタイムスタンプの配列を使用します
+                datasets: [
+                    {
+                        label: "CO2濃度",
+                        data: latestCo2, // Y軸のデータとしてCO2濃度の配列を使用します
+                        borderColor: "#ff6347",
+                        backgroundColor: "#ff6347",
+                    }
+                ]
+            }
+        });
+        return chart;
+    }
+
+    // ページが読み込まれたときに初期のチャートを作成します
+    var chart = createChart();
+
+    // 最新のデータを受信してチャートを更新するためのSocketイベント
+    socket.on("getLatestData", function(AveData) {
+        latestCo2 = AveData[0];
+        latestTime = AveData[1];
+        console.log(latestCo2);
+        console.log(latestTime);
+
+        // チャートのデータとラベルを更新します
+        chart.data.labels = latestTime;
+        chart.data.datasets[0].data = latestCo2;
+        chart.update();
+    });
+
+    // データを更新してチャートをリフレッシュするためのSocketイベント
+    socket.on("updateData", function(updateData) {
+        latestCo2.shift();
+        latestCo2.push(updateData["co2"]);
+
+        // "updateTime"という変数がタイムスタンプを追跡するものと仮定します
+        latestTime.shift();
+        latestTime.push(updateData["timestamp"]);
+
+        // チャートのデータとラベルを更新します
+        chart.data.labels = latestTime;
+        chart.data.datasets[0].data = latestCo2;
+        chart.update();
+    });
+
+
+    </script>
+</body>
+</html>
